@@ -13,7 +13,7 @@
 % Refs:
 % [1] A. Dabagyan, and E. Fedotova, "Algorithm of interpolation of function
 %       of two variables with help of atomic functions,"
-%       M.M.A.D.S., No. 1, 38-44, 2003.
+%       M.M.A.D.S., No. 1, 38-44, 1977.
 %       link: http://fizmathim.com/matematicheskoe-obespechenie-evm-dlya-interpolyatsii-i-approksimatsii-resheniy-kraevyh-zadach-matematicheskoy-fiziki-s-po
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
