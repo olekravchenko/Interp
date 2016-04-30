@@ -6,7 +6,7 @@
 % 
 %                    coded by Oleg Kravchenko, Vasily Bondarenko 2016.04.30
 %                   UPD1: 2016.04.30
-%                   
+%                   UPD2: 2016.05.01 2AM (BVV)
 %                   
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -28,7 +28,7 @@ clc
 a = 0; b = pi;
 c = 0; d = pi;
 % number of gird points
-n = 6; m = n;
+n = 10; m = n;
 hx = (b - a) / (n+1);
 b=b-hx;
 hy = (d - c) / (m+1);
@@ -57,12 +57,15 @@ m = m + 1;
 %As(n+3,m+2) = -2; 
 %As(n+3,m+1) =  1;
 
-a1 = ((1/hx)^2 + (1/hy)^2)*288*5/13/26;
-a2 = ((1/hx)^2 + 5/26*(1/hy)^2)*288/13;
-a3 = ((1/hx)^2 + (1/hy)^2)*288/13*(-2);
+a1 = ((1/hx)^2 + (1/hy)^2)*(288/13/16)^2;
+a2 = ((1/hx)^2 - 2*(1/hy)^2)*(288/13/16)^2;
+a3 = ((1/hx)^2 + (1/hy)^2)*(-4)*(288/13/16)^2;
 
 b1 = 5/26;
 b2 = 1;
+
+c1 =  288/13/16;
+c2 = -576/13/16;
 
 A          = blktridiag(a3, a2, a2, n+3);
 A(1,1)     = b1; 
@@ -84,12 +87,12 @@ B(n+3,m+1) = b2;
 B(n+3,m)   = b1;
 
 As         = blktridiag(b2, b1, b1, n+3);
-As(1,1)    =  288/13;
-As(1,2)    = -576/13;
-As(1,3)    =  288/13;
-As(n+3,m+3)=  288/13;
-As(n+3,m+2)= -576/13;
-As(n+3,m)  =  288/13;
+As(1,1)    = c1;
+As(1,2)    = c2;
+As(1,3)    = c1;
+As(n+3,m+3)= c1;
+As(n+3,m+2)= c2;
+As(n+3,m)  = c1;
 
 Bs  = b1 * As;
 
@@ -145,6 +148,7 @@ for i = -1:n+1
 end
 
 
+
 % figure(1)
 subplot(2,2,1)
 
@@ -169,22 +173,50 @@ box off
 subplot(2,2,3)
 %surf(xx,yy,f)
 %alpha(0.8)
-hold on
+%hold on
 stem3(xx,yy,s,'Marker','.','LineStyle','none')
+surf(xx,yy,s)
 % zlim([min(min(s)) max(max(s))])
 shading interp
 %lighting phong
 %alpha(.4)
-title('Numeric Solvation')
+title('Numeric Solution')
 
 % figure(2)
-%subplot(224)
-%surf(xx,yy,s-func(id,xx,yy))
-%shading interp
-%%lighting phong
-%%alpha(.4)
-%title('Error function')
+subplot(224)
+surf(xx,yy,s/sin(xx).*sin(yy))
+shading interp
+%lighting phong
+%alpha(.4)
+title('Error function')
 %axis([a b c d min(min(s-func(id,xx,yy))) max(max(s-func(id,xx,yy)))]);
+
+ %Dense Grid
+ nxa = n*8; nya = nxa;
+ hxa = hx/3; hya = hy/3;
+ xdence = linspace(a,b,nxa);
+ ydence = linspace(c,d,nya);
+ sdence = zeros(nxa,nya);
+ [xxd,yyd] = meshgrid(xdence,ydence);
+
+
+ for i = 1:n+3
+    for j = 1:m+3
+        sdence = sdence + coeff(i,j) * fup2_small((xdence-a)/hxa/(b-a) - i+2)' * fup2_small((ydence-c)/hya/(d-c) - j+2);
+    end
+ end
+
+figure(2)
+%surf(xx,yy,f)
+%alpha(0.8)
+
+surf(xxd,yyd,sdence)
+% zlim([min(min(s)) max(max(s))])
+%shading interp
+%lighting phong
+%alpha(.4)
+title('Numeric Solution')
+
 
 % er = norm(s(2:n-1,2:m-1) - f(2:n-1,2:m-1),2) / (n*m);
 er1 = norm(s - func(id,xx,yy),Inf) / ((n+2)*(m+2));
