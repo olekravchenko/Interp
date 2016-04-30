@@ -39,7 +39,13 @@ switch id
         info    = '$$1 + \tanh(10x^2y^2)$$';        
     case '11'
         output  = x.*y.^3 * 1e-5;          
-        info    = '$$xy^3 10^{-5}$$';                   
+        info    = '$$xy^3 10^{-5}$$';
+    case '12'
+        output  = x.^2+y.^2;          
+        info    = '$$x^2 + y^2$$';
+    case '13' 
+        output  = -2.*sin(x).*sin(y).+0*(x .* y);
+        info    = '-2sin(x)*sin(y)'    
     otherwise
         output  = 1e-5 + 0*(x .* y);
         info    = '$$10^{-5}$$';
