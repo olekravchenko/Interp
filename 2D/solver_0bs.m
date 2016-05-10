@@ -2,7 +2,7 @@
 %
 %                   Solver of \nabla^2 = f(x,y) equation 
 %                   in rectangle [a,b]x[c,d]
-%                   by atomic function \fup_2(x,y) = \fup_2(x)\fup_2(y)
+%                   by B_3 (Cubic B-Spline)
 % 
 %                    coded by Oleg Kravchenko, Vasily Bondarenko 2016.04.30
 %                   UPD1: 2016.04.30
@@ -19,9 +19,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %                   TODO
-% 1. Merge ToDo & boundary former from solve_0bs
-% 
-% 3. Fix boundary region problem.
+% 1. Replace Fixed coefficients with values of particular function (+/-)
+% 1.1 Review coefficients at boundary region.
+% 2. Fix boundary region problem.
+% 3. Add Possibilyty to use not only NULL value at boundary region
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
@@ -32,9 +33,9 @@ clc
 
 % rectangular area
 a = 0; b = 1;
-c = 0; d = 1;
+c = a; d = b;
 % number of gird points
-n = 16; m = n;
+n = 20; m = n;
 hx = (b - a) / (n+1);
 b=b-hx;
 hy = (d - c) / (m+1);
@@ -63,57 +64,63 @@ m = m + 1;
 %As(n+3,m+2) = -2; 
 %As(n+3,m+1) =  1;
 
-a1 = ((1/hx)^2 + (1/hy)^2)*(288/13/16)^2;
-a2 = ((1/hx)^2 - 2*(1/hy)^2)*(288/13/16)^2;
-a3 = ((1/hx)^2 + (1/hy)^2)*(-4)*(288/13/16)^2;
+%пока что hx==hy,  поэтому несколько пренебрежём стандартными условиями
 
-b1 = 5/26;
-b2 = 1;
+a1 = -6./hx^2;
+a2 = 0.75/hx^2;
 
-c1 =  288/13/16;
-c2 = -576/13/16;
+b1 = 1;
+b2 = 0.25;
+b3 = 0.0625;
 
-A          = blktridiag(a3, a2, a2, n+3);
-A(1,1)     = b1; 
-A(1,2)     = b2; 
-A(1,3)     = b1;
-A(n+3,m+2) = b1; 
-A(n+3,m+1) = b2;
-A(n+3,m)   = b1;
+%c1 =  288/13/16;
+%c2 = -576/13/16;
+
+A          = blktridiag(a1, a2, a2, n+3);
+A(1,1)     = b2; 
+A(1,2)     = b1; 
+A(1,3)     = b2;
+
+A(n+3,m+2) = b2; 
+A(n+3,m+1) = b1;
+A(n+3,m)   = b2;
 
 A = full(A);
 
 %B = A;
-B          = blktridiag(a2, a1, a1, n+3);
-B(1,1)     = b1;
+B          = blktridiag(a2, a2, a2, n+3);
+B(1,1)     = b3;
 B(1,2)     = b2;
-B(1,3)     = b1;
-B(n+3,m+2) = b1;
+B(1,3)     = b3;
+
+B(n+3,m+2) = b3;
 B(n+3,m+1) = b2;
-B(n+3,m)   = b1;
+B(n+3,m)   = b3;
 
 B = full(B);
 
 
-As         = blktridiag(b2, b1, b1, n+3);
-As(1,1)    = c1;
-As(1,2)    = c2;
-As(1,3)    = c1;
-As(n+3,m+3)= c1;
-As(n+3,m+2)= c2;
-As(n+3,m)  = c1;
+As         = blktridiag(b1, b2, b2, n+3);
+As(1,1)    = a2;
+As(1,2)    = a1;
+As(1,3)    = a2;
+
+As(n+3,m+3)= a2;
+As(n+3,m+2)= a1;
+As(n+3,m)  = a2;
 
 As = full(As);
 
-%Bs  = b1 * As;
-Bs         = blktridiag(b2, b1, b1, n+3);
-Bs(1,1)    = c1;
-Bs(1,2)    = c2;
-Bs(1,3)    = c1;
+Bs         = blktridiag(b2, b3, b3, n+3);
+Bs(1,1)    = a2;
+Bs(1,2)    = a2;
+Bs(1,3)    = a2;
 
-Bs(n+3,m+3)= c1;
-Bs(n+3,m+2)= c2;
-Bs(n+3,m)  = c1;
+Bs(n+3,m+3)= a2;
+Bs(n+3,m+2)= a2;
+Bs(n+3,m)  = a2;
+
+Bs = full(Bs);
 
 %B   = As;
 %A   = (288/13) * As;
@@ -167,7 +174,7 @@ y = c + hy*j;
 s = zeros(n1+2,m1+2);
 for i = -1:n+1
  for j = -1:m+1
-     s = s + coeff(i+2,j+2) * fup2_small((x-a)/hx - i)' * fup2_small((y-c)/hy - j);
+     s = s + coeff(i+2,j+2) * bspline((x-a)/hx - i)' * bspline((y-c)/hy - j);
  end
 end
 
@@ -177,27 +184,43 @@ end
 subplot(2,2,1)
 
 surf(xx,yy,f);
+% zlim([min(min(f)) max(max(f))])
 shading interp
+%lighting phong
 title(f_info,'Interpreter','tex', 'FontSize',12)
+% title('Original function')
+% colormap jet
 
 % figure(2)
 subplot(2,2,2);
 contourf(xx,yy,s,'.')
+% colormap cool
+% zlim([min(min(s)) max(max(s))])
+% shading interp
+% lighting phong
 title('Interpolated function')
 box off
 
 subplot(2,2,3)
+%surf(xx,yy,f)
+%alpha(0.8)
+%hold on
 stem3(xx,yy,s,'Marker','.','LineStyle','none')
 surf(xx,yy,s)
+% zlim([min(min(s)) max(max(s))])
 shading interp
+%lighting phong
+%alpha(.4)
 title('Numeric Solution')
 
 % figure(2)
 subplot(224)
 surf(xx,yy,s/sin(xx).*sin(yy))
 shading interp
+%lighting phong
+%alpha(.4)
 title('Error function')
-
+%axis([a b c d min(min(s-func(id,xx,yy))) max(max(s-func(id,xx,yy)))]);
 
  %Dense Grid
  nxa = n*8; nya = nxa;
@@ -210,7 +233,7 @@ title('Error function')
 
  for i = 1:n+3
     for j = 1:m+3
-        sdence = sdence + coeff(i,j) * fup2_small((xdence-a)/hxa/(b-a) - i+2)' * fup2_small((ydence-c)/hya/(d-c) - j+2);
+        sdence = sdence + coeff(i,j) * bspline((xdence-a)/hxa/(b-a) - i+2)' * bspline((ydence-c)/hya/(d-c) - j+2);
     end
  end
 
@@ -219,6 +242,10 @@ figure(2)
 %alpha(0.8)
 
 surf(xxd,yyd,sdence)
+% zlim([min(min(s)) max(max(s))])
+%shading interp
+%lighting phong
+%alpha(.4)
 title('Numeric Solution')
 
 

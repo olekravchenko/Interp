@@ -49,6 +49,12 @@ switch id
     case '14' 
         output  =  -8.*sin(2.*x).*sin(2.*y);
         info    = '-2sin(x)*sin(y)';
+    case '15' 
+        output  =  -16.*pi*sin(2.*pi*x).*sin(2.*pi*y);
+        info    = '-2sin(x)*sin(y)';
+    case '16' 
+        output  =  2.*(x.^2+y.^2-x-y);
+        info    = '-2sin(x)*sin(y)';
     otherwise
         output  = 1e-5 + 0*(x .* y);
         info    = '$$10^{-5}$$';
