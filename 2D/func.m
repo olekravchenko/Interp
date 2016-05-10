@@ -45,7 +45,10 @@ switch id
         info    = '$$x^2 + y^2$$';
     case '13' 
         output  = -2.*sin(x).*sin(y).+0*(x .* y);
-        info    = '-2sin(x)*sin(y)'    
+        info    = '-2sin(x)*sin(y)';
+    case '14' 
+        output  =  -8.*sin(2.*x).*sin(2.*y);
+        info    = '-2sin(x)*sin(y)';
     otherwise
         output  = 1e-5 + 0*(x .* y);
         info    = '$$10^{-5}$$';

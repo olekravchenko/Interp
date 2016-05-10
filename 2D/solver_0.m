@@ -7,7 +7,7 @@
 %                    coded by Oleg Kravchenko, Vasily Bondarenko 2016.04.30
 %                   UPD1: 2016.04.30
 %                   UPD2: 2016.05.01 2AM (BVV)
-%                   
+%                   UPD3: 2016.05.10 3PM (BVV) (Added Eq. Example, Added TODO)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Refs:
@@ -17,7 +17,13 @@
 %       link: http://fizmathim.com/matematicheskoe-obespechenie-evm-dlya-interpolyatsii-i-approksimatsii-resheniy-kraevyh-zadach-matematicheskoy-fiziki-s-po
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%
+%                   TODO
+% 1. Replace Fixed coefficients with values of particular function
+% 2. Re-Organize the code, find where we've lost boundary values
+% 3. Fix boundary region problem.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
 close all
 clc
@@ -41,7 +47,7 @@ j = 0:m+1;
 x = a + hx*i;
 y = c + hy*j;
 % id of the function
-id = '13';                             % id numbers '0'..'11'
+id = '14';                             % id numbers '0'..'11'
 
 [xx, yy] = meshgrid(x,y);
 [f, f_info] = func(id,xx,yy);
